@@ -1,0 +1,47 @@
+# À placer dans le dépôt : .github/workflows/build.yml
+# Le dépôt doit contenir à la racine : Rec-Android.zip
+name: Construire l'APK Rec
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Ouvrir le zip du projet
+        run: unzip -q Rec-Android.zip -d projet
+
+      - name: Compiler l'APK
+        run: cd projet/Rec && gradle assembleDebug --stacktrace
+
+      - name: Publier l'APK (téléchargement direct, sans zip)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "apk-${{ github.run_number }}" \
+            projet/Rec/app/build/outputs/apk/debug/app-debug.apk \
+            --title "Rec - build ${{ github.run_number }}" \
+            --notes "APK de test, à installer directement sur le téléphone." \
+            --latest
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rec-apk
+          path: projet/Rec/app/build/outputs/apk/debug/*.apk
