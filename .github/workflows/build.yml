@@ -1,6 +1,6 @@
 # À placer dans le dépôt : .github/workflows/build.yml
-# Le dépôt doit contenir à la racine : Rec-Android.zip
-name: Construire l'APK Rec
+# Le dépôt doit contenir à la racine : HEX-REC-Android.zip
+name: Construire l'APK HEX-REC
 
 on:
   push:
@@ -26,22 +26,22 @@ jobs:
           gradle-version: 8.9
 
       - name: Ouvrir le zip du projet
-        run: unzip -q Rec-Android.zip -d projet
+        run: unzip -q HEX-REC-Android.zip -d projet
 
       - name: Compiler l'APK
-        run: cd projet/Rec && gradle assembleDebug --stacktrace
+        run: cd projet/HEX-REC && gradle assembleDebug --stacktrace
 
       - name: Publier l'APK (téléchargement direct, sans zip)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "apk-${{ github.run_number }}" \
-            projet/Rec/app/build/outputs/apk/debug/app-debug.apk \
-            --title "Rec - build ${{ github.run_number }}" \
+            projet/HEX-REC/app/build/outputs/apk/debug/app-debug.apk \
+            --title "HEX-REC - build ${{ github.run_number }}" \
             --notes "APK de test, à installer directement sur le téléphone." \
             --latest
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Rec-apk
-          path: projet/Rec/app/build/outputs/apk/debug/*.apk
+          name: HEX-REC-apk
+          path: projet/HEX-REC/app/build/outputs/apk/debug/*.apk
